@@ -1,0 +1,38 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+vendor/
+node_modules/
+composer.lock
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS
+*.log
+.DS_Store
+
+# PHP
+*.phar
+/build/
+
+# Temp files
+tmp/
+temp/
+.cache/
+
+# Vercel
+.vercel
+
+# Development
+*.test.php
+debug.log

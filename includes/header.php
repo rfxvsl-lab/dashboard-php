@@ -1,7 +1,9 @@
 <?php
 session_start();
-if(!isset($_SESSION['is_logged_in'])) {
-    header("Location: login.php");
+// Cek apakah belum login ATAU rolenya bukan Admin
+if(!isset($_SESSION['is_logged_in']) || $_SESSION['user_role'] !== 'Admin') {
+    // Jika bukan admin, tendang ke beranda atau login
+    header("Location: index.php");
     exit;
 }
 ?>

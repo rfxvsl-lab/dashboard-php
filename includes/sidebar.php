@@ -18,8 +18,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <nav class="flex-1 space-y-2 px-4 py-4">
                 
                 <!-- Dashboard & Users -->
-                <a href="index.php" class="<?= $current_page == 'index.php' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40' : 'text-gray-400 hover:bg-gray-800 hover:text-white' ?> group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200">
-                    <i class="fa-solid fa-gauge-high mr-3 flex-shrink-0 h-5 w-5 <?= $current_page == 'index.php' ? 'text-white' : 'text-gray-400 group-hover:text-white' ?>"></i>
+                <a href="dashboard.php" class="<?= $current_page == 'dashboard.php' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40' : 'text-gray-400 hover:bg-gray-800 hover:text-white' ?> group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200">
+                    <i class="fa-solid fa-gauge-high mr-3 flex-shrink-0 h-5 w-5 <?= $current_page == 'dashboard.php' ? 'text-white' : 'text-gray-400 group-hover:text-white' ?>"></i>
                     Dashboard & Users
                 </a>
 

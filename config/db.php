@@ -1,25 +1,33 @@
 <?php
 // config/db.php - Supabase REST API connection
 
-// Load environment from .env via vlucas/phpdotenv
+// Load environment from .env via vlucas/phpdotenv (for local development)
 $autoload = __DIR__ . '/../vendor/autoload.php';
 if (file_exists($autoload)) {
     require $autoload;
     if (class_exists(\Dotenv\Dotenv::class)) {
         try {
-            \Dotenv\Dotenv::createImmutable(__DIR__ . '/..')->load();
+            \Dotenv\Dotenv::createImmutable(__DIR__ . '/..')->safeLoad();
         } catch (\Exception $e) {
-            // .env not found or error loading; continue with fallback
+            // .env not found or error loading - continue (Vercel will use env vars)
         }
     }
 }
 
-// Load Supabase credentials from environment
-$supabase_url = $_ENV['SUPABASE_URL'] ?? getenv('SUPABASE_URL') ?: 'https://czhkrhtbplafrpevaqst.supabase.co';
-$supabase_key = $_ENV['SUPABASE_KEY'] ?? getenv('SUPABASE_KEY') ?: ($_ENV['SUPABASE_ANON_KEY'] ?? getenv('SUPABASE_ANON_KEY'));
+// Load Supabase credentials from Environment Variables
+// Priority: getenv() > $_ENV > fallback
+// Vercel automatically provides these via Environment Variables panel
+$supabase_url = getenv('SUPABASE_URL') ?: ($_ENV['SUPABASE_URL'] ?? null);
+$supabase_key = getenv('SUPABASE_KEY') ?: ($_ENV['SUPABASE_KEY'] ?? getenv('SUPABASE_ANON_KEY') ?: ($_ENV['SUPABASE_ANON_KEY'] ?? null));
 
-if (!$supabase_key) {
-    die("Koneksi Gagal: SUPABASE_KEY environment variable not set. Set SUPABASE_KEY (anon public key) and optionally SUPABASE_URL.");
+// Validate credentials exist
+if (!$supabase_url || !$supabase_key) {
+    die("❌ Koneksi Gagal: Environment variables not configured.\n\n" .
+        "Required variables:\n" .
+        "• SUPABASE_URL (e.g., https://xxxxx.supabase.co)\n" .
+        "• SUPABASE_KEY (anon/public key)\n\n" .
+        "On Vercel: Add these in Settings > Environment Variables\n" .
+        "Locally: Create a .env file with these variables");
 }
 
 // Helper function to fetch from Supabase REST API
