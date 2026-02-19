@@ -1,0 +1,12 @@
+{
+    "name": "rfxvsl-lab/dashboard-php",
+    "description": "Simple dashboard using Supabase REST API",
+    "require": {
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
