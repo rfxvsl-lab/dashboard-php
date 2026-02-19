@@ -17,6 +17,15 @@ $error = '';
 if(isset($_POST['login'])) {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
+    // Demo login: terima kredensial demo tanpa memanggil Supabase
+    if ($email === 'admin@rfxvisual.dan' && $password === 'admin123com') {
+        $_SESSION['is_logged_in'] = true;
+        $_SESSION['user_id'] = 0;
+        $_SESSION['user_role'] = 'Admin';
+        $_SESSION['user_name'] = 'Demo Admin';
+        header("Location: dashboard.php");
+        exit;
+    }
 
     // Cek ke tabel users di Supabase
     $result = supabase_fetch('/users', ['email' => 'eq.' . $email, 'select' => '*']);
@@ -89,8 +98,8 @@ if(isset($_POST['login'])) {
         <div class="mt-6 pt-6 border-t border-gray-200 text-center">
             <p class="text-xs text-gray-500">
                 <strong>Demo Credentials:</strong><br>
-                Email: <code class="bg-gray-100 px-2 py-1 rounded">admin@rfxvisual.com</code><br>
-                Password: <code class="bg-gray-100 px-2 py-1 rounded">admin123</code>
+                Email: <code class="bg-gray-100 px-2 py-1 rounded">admin@rfxvisual.dan</code><br>
+                Password: <code class="bg-gray-100 px-2 py-1 rounded">admin123com</code>
             </p>
         </div>
     </div>
