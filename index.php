@@ -2,10 +2,27 @@
 // Load database configuration (Supabase REST API)
 require_once 'config/db.php';
 
-// Include header with Tailwind + FontAwesome
-include 'includes/header.php';
+// 1. Ambil data pengguna dan hitung total
+$users = supabase_fetch('/users', ['order' => 'id.desc']);
+$jumlah_user = !isset($users['error']) && !empty($users) ? count($users) : 0;
 
-// Include sidebar navigation
+// 2. Ambil data transaksi dan hitung total pendapatan
+$transactions = supabase_fetch('/transactions', ['order' => 'tanggal.asc']);
+$total_pendapatan = 0;
+$labels = [];
+$data_grafik = [];
+
+if (!isset($transactions['error']) && !empty($transactions)) {
+    foreach ($transactions as $row) {
+        $total_pendapatan += $row['jumlah'] ?? 0;
+        $labels[] = date('d M', strtotime($row['tanggal']));
+        $data_grafik[] = $row['jumlah'] ?? 0;
+    }
+}
+
+include 'includes/header.php';
+// Add Chart.js library before sidebar
+echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
 include 'includes/sidebar.php';
 ?>
 
@@ -17,7 +34,7 @@ include 'includes/sidebar.php';
                 <!-- Page Header -->
                 <div class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-                    <p class="text-gray-600 text-sm mt-1">Welcome to your modern admin dashboard</p>
+                    <p class="text-gray-600 text-sm mt-1">Selamat datang di dashboard admin modern Anda</p>
                 </div>
 
                 <!-- Statistics Cards Grid -->
@@ -30,72 +47,103 @@ include 'includes/sidebar.php';
                                 <div>
                                     <p class="text-sm font-medium text-gray-600">Total Pengguna</p>
                                     <p class="text-4xl font-bold text-gray-900 mt-2"><?= $jumlah_user; ?></p>
-                                    <p class="text-xs text-gray-500 mt-2">
-                                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
-                                        <span class="text-green-600">+2 bulan ini</span>
-                                    </p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-full p-4">
-                                    <i class="fas fa-users text-indigo-600 text-2xl"></i>
+                                    <i class="fa-solid fa-users text-indigo-600 text-2xl"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
-                            <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-700">
-                                Kelola semua users <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
-                        </div>
                     </div>
 
-                    <!-- Total Visits Card (Mock Data) -->
-                    <div class="stat-card bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-500">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-600">Total Kunjungan</p>
-                                    <p class="text-4xl font-bold text-gray-900 mt-2">24.5k</p>
-                                    <p class="text-xs text-gray-500 mt-2">
-                                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
-                                        <span class="text-green-600">+12% bulan ini</span>
-                                    </p>
-                                </div>
-                                <div class="bg-green-50 rounded-full p-4">
-                                    <i class="fas fa-chart-line text-green-600 text-2xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
-                            <a href="#" class="text-sm font-medium text-green-600 hover:text-green-700">
-                                Lihat analytics <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Revenue Card (Mock Data) -->
+                    <!-- Total Pendapatan Card -->
                     <div class="stat-card bg-white overflow-hidden shadow rounded-lg border-l-4 border-yellow-500">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-600">Pendapatan</p>
-                                    <p class="text-4xl font-bold text-gray-900 mt-2">$12,000</p>
-                                    <p class="text-xs text-gray-500 mt-2">
-                                        <i class="fas fa-clock mr-1"></i>
-                                        <span>Update: Hari ini</span>
-                                    </p>
+                                    <p class="text-sm font-medium text-gray-600">Total Pendapatan</p>
+                                    <p class="text-3xl font-bold text-gray-900 mt-2">Rp <?= number_format($total_pendapatan, 0, ',', '.'); ?></p>
                                 </div>
                                 <div class="bg-yellow-50 rounded-full p-4">
-                                    <i class="fas fa-sack-dollar text-yellow-600 text-2xl"></i>
+                                    <i class="fa-solid fa-sack-dollar text-yellow-600 text-2xl"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
-                            <a href="#" class="text-sm font-medium text-yellow-600 hover:text-yellow-700">
-                                Detail transaksi <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
+                    </div>
+
+                    <!-- Sistem Info Card -->
+                    <div class="stat-card bg-white overflow-hidden shadow rounded-lg border-l-4 border-purple-500">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Status Sistem</p>
+                                    <p class="text-lg font-bold text-gray-900 mt-2"><i class="fa-solid fa-circle-check text-green-500"></i> Online</p>
+                                    <p class="text-xs text-gray-500 mt-2">PHP <?= phpversion(); ?></p>
+                                </div>
+                                <div class="bg-purple-50 rounded-full p-4">
+                                    <i class="fa-solid fa-server text-purple-600 text-2xl"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                 </div>
+
+                <!-- Revenue Chart Section -->
+                <div class="mt-8 bg-white shadow rounded-lg p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fa-solid fa-chart-line text-indigo-600 mr-2"></i> Grafik Pendapatan
+                    </h2>
+                    <div class="relative h-72 w-full">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <script>
+                    const ctx = document.getElementById('revenueChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: <?= json_encode($labels); ?>,
+                            datasets: [{
+                                label: 'Pendapatan (Rp)',
+                                data: <?= json_encode($data_grafik); ?>,
+                                borderColor: '#4f46e5',
+                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#4f46e5',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    labels: {
+                                        font: { size: 12 },
+                                        padding: 15
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                </script>
 
                 <!-- Users Table Section -->
                 <div class="mt-12">
@@ -103,12 +151,12 @@ include 'includes/sidebar.php';
                         <div class="flex items-center justify-between mb-6">
                             <div>
                                 <h2 class="text-lg leading-6 font-semibold text-gray-900">
-                                    <i class="fas fa-users mr-2 text-indigo-600"></i>Daftar Pengguna
+                                    <i class="fa-solid fa-users mr-2 text-indigo-600"></i>Daftar Pengguna
                                 </h2>
                                 <p class="text-sm text-gray-600 mt-1">Data pengguna dari Supabase</p>
                             </div>
                             <a href="add_user.php" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
-                                <i class="fas fa-plus mr-2"></i>Tambah User
+                                <i class="fa-solid fa-plus mr-2"></i>Tambah User
                             </a>
                         </div>
 
